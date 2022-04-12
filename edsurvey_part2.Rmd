@@ -1,0 +1,734 @@
+---
+title: "Analyzing NAEP and TIMSS Data with Direct Estimation using the R packages EdSurvey and Dire"
+author: |
+ | <strong>Team Leads</strong>: Ting Zhang & Paul Bailey <br><strong>NCES Lead</strong>: Emmanuel Sikali<br><strong>Development Team</strong>: Michael Lee, Huade Huo, Thomas Fink, Sinan Yavuz, Khaya Klanot, & Sun-Joo Lee<br><strong>Quality Control Team</strong>: Michael Cohen, Yuqi Liao, Charles Blankenship, & Thanh Mai
+date: "April 2022"
+output:
+  xaringan::moon_reader:
+    css: ["naep-theme.css"]
+    chakra: libs/remark-latest.min.js
+    lib_dir: libs
+    seal: false
+    self_contained: true
+    scroll: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+class: inverse, title-slide
+
+<hr>
+
+Analyzing NAEP and TIMSS Data with Direct Estimation using the R packages EdSurvey and Dire
+========================================================
+
+<hr>
+<br>
+
+**Presenters**: Paul Bailey, Ting Zhang, Michael Lee & Sinan Yavuz
+
+_April 2022_
+
+.logo[
+```{r airLogo, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/naepLogo.png')
+```
+]
+
+```{r, include=FALSE}
+source("CreatingRscriptsFromRmd.R")
+```
+
+---
+
+Workshop Goal
+========================================================
+<br>
+
+```{r echo=FALSE}
+options(width = 130)
+```
+
+## Provide participants with an overview of the plausible values and direct estimation methods used to analyze national and international large-scale assessment data using the R package `EdSurvey` and `Dire`.
+
+<br>
+
+Follow along in [edsurvey_part2_Script.R](edsurvey_part2_Script.R)
+
+---
+
+Outline of EdSurvey Workshop - Part 2
+========================================================
+
+4. Descriptive statistics
+
+5. Hands-on practice
+
+6. Direct estimation with EdSurvey and Dire
+
+7. Hands-on practice
+
+---
+
+Data Processing
+========================================================
+
+- First, load the `EdSurvey` package and read in the data
+
+```{r load library, message=FALSE, eval=TRUE, warning= FALSE}
+# to load the package
+library(EdSurvey)
+library(Dire)
+```
+
+NAEP Primer:
+
+```{r read in data, message=FALSE}
+sdf <- readNAEP(system.file("extdata/data", "M36NT2PM.dat",
+                            package = "NAEPprimer"))
+```
+
+---
+
+class: inverse, section-slide
+
+Summary statistics
+========================================================
+<hr class="sectionSlide">
+.logoSection[
+```{r, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/naepLogo.png')
+```
+]
+
+---
+
+Summary statistics
+========================================================
+**`summary2()`** produces both weighted and unweighted descriptive statistics for a variable. **`summary2()`** takes four following arguments in order:
+- **`data`**          : an `EdSurvey` object.
+- **`variable`**      : name of the variable you want to produce statistics on.
+- `weightVar`           : name of the weight variable; or `NULL` if users want to produce unweighted statistics.
+- `omittedLevels`       : if `TRUE`, the function will remove omitted levels for the specified variable before producing descriptive statistics. If `FALSE`, the function will include omitted levels in the output statistics.
+
+---
+
+Summary statistics
+========================================================
+
+For a continuous variable (i.e., composite Math score):
+- For NAEP data and other datasets that have default weight variable, `summary2` produces weighted statistics by default. If specified, `variable` is a plausible value and weight option is selected, `summary2` statistics account for both plausible value pooling and weighting.   
+
+```{r summary2_1}
+summary2(sdf, "composite")
+```
+
+---
+
+Summary statistics
+========================================================
+
+For a continuous variable (i.e., composite Math score):
+- By specifying `weightVar = NULL`, the function prints out unweighted descriptive statistics for `variable`, or each plausible value if `variable` is a plausible value name.    
+
+```{r summary2_2}
+summary2(sdf, "composite", weightVar = NULL)
+```
+
+---
+
+Summary statistics
+========================================================
+
+For a categorical variable (i.e., frequency of students talking about studies at home):
+
+- By default, `omittedLevels` is set to `FALSE`. That is, the function includes omitted levels of the variable `b017451` in the output statistics.    
+
+
+```{r summary2_3}
+summary2(sdf, "b017451")
+```
+
+
+---
+
+Summary statistics
+========================================================
+
+For a categorical variable (i.e., frequency of students talking about studies at home):
+- By specifying `omittedLevels = TRUE`, the function removes omitted levels out of the output statistics.   
+
+
+```{r summary2_4}
+summary2(sdf, "b017451", omittedLevels = TRUE)
+```
+
+
+---
+
+Cross tabulation
+========================================================
+
+**`edsurveyTable()`:** creates a summary table of outcome and categorical variables. There are 3 important arguments as followed: 
+- `formula`: typically written as `a ~ b + c`, in which:
+  - `a`: a continuous variable (optional) that the function will return weighted mean on.
+  - `b` and `c`: categorical variable(s) that the function will run cross-tabulation on; multiple crosstab 
+  categorical variables can be separated using `+` symbol.  
+- `data`: an `EdSurvey` object
+- `pctAggregationLevel`: a numeric value (i.e., 0, 1, 2) that indicates the level of aggregation in the cross-tabulation result's percentage column. 
+
+---
+
+Cross tabulation
+========================================================
+
+- Summary table of NAEP composite mathematics performance scale scores (`composite`) of 8th grade students by two student factors:
+  - `dsex`: gender
+  - `b017451`: frequency of talk about studies at home
+
+```{r edsurveyTable1}
+es1 <- edsurveyTable(composite ~ dsex + b017451, data = sdf)
+```
+
+- `pctAggregationLevel` is by default set to `NULL` (or `1`). That is, the `PCT` column adds up to 100 within each level of the first categorical variable `dsex`. 
+
+```{r edsurveyTable kable1, echo=FALSE}
+library(knitr)
+library(kableExtra)
+kable(es1$data, format="html") %>%
+  kable_styling(font_size = 16) %>%
+  scroll_box(width="100%", height = "30%")
+```
+
+---
+
+Cross tabulation
+========================================================
+
+- By specifying `pctAggregationLevel = 0`, the `PCT` column adds up to 100 across the entire sample.         
+
+```{r edsurveyTable2}
+es2 <- edsurveyTable(composite ~ dsex + b017451, data = sdf, pctAggregationLevel = 0)
+```
+
+
+```{r edsurveyTable2 kable2, echo=FALSE}
+library(knitr)
+library(kableExtra)
+kable(es2$data, format="html") %>%
+  kable_styling(font_size = 16) %>%
+  scroll_box(width="100%", height = "75%")
+```
+
+- Related Documentation - [EdSurvey-LaTeXtables.pdf](https://www.air.org/sites/default/files/EdSurvey-LaTeXtables.pdf), [Chap 5.4.1, EdSurvey Book](https://naep-research.airprojects.org/Portals/0/EdSurvey_A_Users_Guide/_book/understandingData.html#edsurveytable)
+
+---
+
+Self-Reflection - edsurveyTable
+========================================================
+  
+**Ask yourself:** Use EdSurvey functions to create a summary table using `edsurveyTable` with these parameters:
+
+- overall math performance across subscales (`composite`)
+- variable that has to do with IEP status
+- variable that has to do with number of books at home
+
+---
+
+Self-Reflection - edsurveyTable
+========================================================
+
+Scenario Result:
+
+```{r exerciseedt results}
+edexercise <- edsurveyTable(composite ~ iep + b013801,
+                            weightVar = 'origwt', data = sdf)
+edexercise
+```
+
+---
+---
+
+class: inverse, section-slide
+
+Linear Regression with PVs
+========================================================
+<hr class="sectionSlide">
+.logoSection[
+```{r, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/naepLogo.png')
+```
+]
+---
+
+Linear Regression with PVs - lm.sdf()
+========================================================
+
+`lm.sdf()`: fits a linear model formula using sampling weights and a variance estimation method. The format is:
+
+`myfit <- lm.sdf(formula, data, weightVar, varMethod, relevels)`
+
+
+- `formula`: model to be fit.
+- `data`: data frame containing the data to be used in fitting the model.
+- `weightVar`: indicates the weight variable to use.
+- `varMethod`: the variance estimation method (Jackknife or Taylor series) with the Jackknife as the default.
+- `relevels`: is used when the user wants to change the reference level of a categorical variable.
+  
+---
+
+Linear Regression with PVs - lm.sdf()
+========================================================
+
+The resulting object (`myfit` in this case) is a list containing extensive information about the fitted model.
+
+Formula notation is typically written as:
+
+`Y ~ X1 + X2 + ... + Xk`
+
+<br>
+
+- The `~` separates the response variable on the left from the predictor variables on the right.
+- The `+` sign separates the predictor variables.
+<br>
+ 
+
+---
+
+Regressions with PVs - lm.sdf()
+========================================================
+
+```{r beta testers, warning=FALSE, message=FALSE, echo = FALSE}
+library(EdSurvey)
+sdf <- readNAEP(system.file("extdata/data", "M36NT2PM.dat", package = "NAEPprimer"))
+```
+
+
+```{r mathJaxlm.png, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/mathJaxlm.png')
+```
+
+.codeScroll20[
+```{r lm.sdf ttest}
+lm1 <- lm.sdf(composite ~ dsex + b013801,
+              weightVar = 'origwt', data = sdf)
+summary(lm1)
+```
+]
+
+---
+
+Self-Reflection - lm.sdf
+========================================================
+
+**Ask yourself:** Use EdSurvey functions to perform a regression with multiple predictors using `lm.sdf` using these parameters:
+
+- overall math performance across subscales (`composite`)
+- variable that has to do with computers at home
+- variable that has to do with language other than English spoken in home
+
+---
+
+Self-Reflection - lm.sdf
+========================================================
+
+Scenario Result:
+
+```{r exercise3 results}
+lmexercise2 <- lm.sdf(composite ~ b017101 + b018201,
+                      weightVar = 'origwt', data = sdf)
+summary(lmexercise2)
+```
+
+---
+
+class: inverse, section-slide
+
+Direct estimation with EdSurvey and Dire
+========================================================
+<hr class="sectionSlide">
+.logoSection[
+```{r, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/naepLogo.png')
+```
+]
+
+---
+
+Direct Estimation with EdSurvey `mml.sdf`
+========================================================
+- The `mml.sdf` function in `EdSurvey` enables marginal maximum likelihood estimation (MML) of linear models for NAEP and TIMMS. 
+
+- `mml.sdf` was designed to automate weighting and complex design calculation with simple steps. The direct estimation can be done in `EdSurvey` with a simplified operation via the `mml.sdf` function
+
+- Item parameters, scoring, scaling and weighting information were grabbed from existing NAEP documents, and multiple procedures were streamlined and calculated behind the scene automatically.
+
+- Plausible values (PVs) can be drawing from the latent distribution with `drawPVs.sdf`.
+
+---
+
+Direct Estimation with EdSurvey `mml.sdf`
+========================================================
+
+```{r, fitmmlsdf, cache=TRUE}
+mmlA <- mml.sdf(composite ~ dsex + b013801, data=sdf, weightVar='origwt', idVar="ROWID", multiCore=TRUE)
+summary(mmlA)
+```
+
+---
+
+Draw PVs with EdSurvey `drawPVs.sdf`
+========================================================
+- The `drawPVs.sdf` requires two data sources: 
+  - an `edsurvey.data.frame` (in this case, the primer data `sdf`), and 
+  - a fit from a call to `mml.sdf` or a `summary` of `mml.sdf` call (i.e., `mmlA` from the example). 
+- The `npv` argument specifies the number of PVs for the scale. 
+
+```{r, drawPVsdf, cache=TRUE}
+sdf2 <- drawPVs(sdf, mmlA, npv=20L)
+```
+---
+
+
+Use new PVs with EdSurvey `drawPVs.sdf`
+========================================================
+- The new plausible values variables end with `_dire`
+- these can be used to fit a regression with any combination of conditioning variables
+- variables must be included in the conditioning model (`mml.sdf` call) for the estimator to be unbiased
+```{r, usePVs}
+lm2 <- lm.sdf(composite_dire ~ b013801, data=sdf2)
+summary(lm2)
+```
+---
+
+Use new PVs with EdSurvey `drawPVs.sdf`
+========================================================
+- Variables not included in the conditioning model (`mml.sdf` call) will have biased estimates
+- this includes interaction terms
+```{r, usePVs2}
+lm1a <- lm.sdf(composite ~ b018201, data=sdf2)
+summary(lm1a)$coefmat
+lm1b <- lm.sdf(composite_dire ~ b018201, data=sdf2)
+summary(lm1b)$coefmat
+```
+---
+
+
+Direct Estimation with Dire
+========================================================
+The `Dire` package enables MML linear model and PVs generation for assessment data. 
+
+It is flexible for data linking or data frame expanding (e.g., adding Principle Component variables).
+
+Multiple steps required:
+
+- Process the data, link datasets if needed
+- Prepare necessary arguments for item, location, scale and weight parameters
+- Run MML regression
+- Summary of the fitted results with the Taylor series method
+- Draw PVs
+
+---
+
+Data Processing and Exploration
+========================================================
+The `NAEPDataSimulation` package includes a simulated NAEP-like dataset. 
+This dataset was generated by using the NAEP 2015 Mathematics 8 grade item parameters and block design.
+```{r, read the data}
+require(NAEPDataSimulation)
+simNAEP <- NAEPDataSimulation::NAEPlikeDt
+dim(simNAEP)
+simNAEP[1:6,1:6]
+```
+
+---
+
+Data Linking
+========================================================
+
+- We will merge a data from [The US Census Bureau](https://www.census.gov) and the simulated NAEP-like data. 
+- However, the possibilities are endless as long as there is a common variable to combine datasets from different resources.
+- From the selection of data provided by The US Census Bureau we choose the following variable from [American Community Survey (ACS) 5-Year Data (2009-2020) dataset](https://www.census.gov/data/developers/data-sets/acs-5year.html): 
+
+**B06011_001E:** Median income in the past 12 months (in 2019 inflation-adjusted dollars) by place of birth in the United States
+
+- The dataset and all other variables can be found here.
+[https://api.census.gov/data/2019/acs/acs5/variables.html](https://api.census.gov/data/2019/acs/acs5/variables.html)
+
+---
+
+Data Linking - Download the external dataset
+========================================================
+
+Because the dataset is publicly available it can be directly downloaded as follows:
+
+```{r downloadAct}
+url="https://api.census.gov/data/2019/acs/acs5?get=NAME,B06011_001E&for=zip%20code%20tabulation%20area:*&in=state:*"
+temp <- tempfile()
+download.file(url , temp)
+AcsDt <- read.table(temp, sep=",",header = TRUE)
+unlink(temp)
+head(AcsDt)
+```
+
+
+---
+
+Data Linking - Clean up the ACS data
+========================================================
+
+- Before merging, we need to clean the brackets and replace the missing values with `NA`. Additionally, we will divide the median income variable by 10,000 for quicker convergence and more readible coefficients.
+
+```{r cleanAcs}
+#remove the opening bracket on the first column
+AcsDt[,1] <- gsub(pattern="\\[", replacement="", x= AcsDt[,1])
+#remove the last empty column
+AcsDt$X <- NULL
+#remove the bracket from the last column
+AcsDt[,ncol(AcsDt)] <- gsub(pattern="\\]", replacement="", x= AcsDt[,ncol(AcsDt)])
+AcsDt$B06011_001E[AcsDt$B06011_001E==-666666666] <- NA
+AcsDt$B06011_001E <- as.numeric(AcsDt$B06011_001E)
+```
+
+---
+
+Data Linking - Take a look at the ACS data
+========================================================
+
+- Here is the cleaned ACS data
+
+```{r ACSdata}
+head(AcsDt)
+tail(AcsDt)
+```
+
+---
+
+Data Linking - Clean up and merge
+========================================================
+
+- We will merge this data with the simulated data by using the zip code variable. 
+
+```{r linking}
+linkedData <- merge(simNAEP, AcsDt, by.x = "zip", 
+                    by.y = "zip.code.tabulation.area.", all.x = TRUE)
+linkedData$B06011_001E_10K <- linkedData$B06011_001E/10000
+linkedData[1:6,1:8]
+linkedData[1500:1506,344:350]
+```
+
+
+---
+
+MML Model Preparation - Item Parameters
+========================================================
+The most convenient way to acquire NAEP item parameters is to call `NAEPirtparams` package. From this package item parameters can be gathered as follows: 
+```{r, mmlPrep1}
+require(NAEPirtparams)
+param <- NAEPirtparams::parameters
+item_par <- param[param$level == 8 & param$subject == "Mathematics" & param$year == 2015, ]
+paramTabs <- naepParamTabs(item_par)
+polyParamTab <- paramTabs$polyParamTab
+dichotParamTab <- paramTabs$dichotParamTab
+dichotParamTab$test <- 'composite'
+polyParamTab$test <- 'composite'
+polyParamTab$scorePoints <- apply(polyParamTab[,c('d1','d2','d3','d4','d5')], 1, function(x) 5 - sum(is.na(x)))
+```
+
+---
+
+MML Model Preparation - Student Responses
+========================================================
+
+- After forming the `dichotParamTab` and `polyParamTab`, which provides the item parameters for dichotomous and polytomous items respectively, the next step is the preparation of a "long" formatted item responses. 
+- In the simulated data item responses are already provided, however these are in a "wide" format. These item responses can be reshaped using the following lines:
+```{r, mmlPrep2}
+itemNames <- c(dichotParamTab$ItemID, polyParamTab$ItemID)
+stuItems <- simNAEP[,c("idVar", itemNames)]
+stuItems <- reshape(simNAEP[,c("idVar", itemNames)], idvar = "idVar", direction = "long", v.names = "score",
+                    timevar = "key", times = itemNames,
+                    varying = itemNames)
+```
+
+---
+
+MML Model Preparation - Scaling Arguments
+========================================================
+
+Another important piece of information is the location, scale and weight parameters of the each subscale of Mathematics subject. This information can also be received from using `NAEPirtparams` package as follows
+
+```{r, mmlPrep3, cache=TRUE}
+transf <- NAEPirtparams::transformations
+transFilter <- transf[transf$level== 8 & transf$year== 2015 & transf$subject== "Mathematics", ]
+testScale <- transFilter[,c('subtest','location','scale', 'subtestWeight')]
+testScale <- testScale[!is.na(testScale$subtestWeight),]
+testScale
+```
+
+
+---
+
+MML Model - `mml`
+========================================================
+
+- `mml` function can estimate a linear model via marginal maximum likelihood. 
+
+```{r mml, cache=TRUE}
+fit <- mml(composite ~  dsex + pared,
+             stuItems = stuItems,
+             stuDat = simNAEP,
+             idVar = "idVar",
+             dichotParamTab = dichotParamTab,
+             polyParamTab =  polyParamTab,
+             testScale = testScale,
+             strataVar="repgrp1", PSUVar="jkunit",
+             weightVar = "origwt",
+             fast = TRUE,
+             multiCore = FALSE,
+             verbose=2)
+```
+
+---
+
+MML Model - Summary of the model
+========================================================
+
+```{r mml_result, cache=FALSE}
+summary(fit)
+```
+
+---
+
+Drawing PVs - Preparation
+========================================================
+
+- `drawPVs` function allows users to generate new plausible values based on the formula they constructed. 
+- It directly uses the object produced by `mml` function. 
+- Note that, because of the selected "Mathematics" subject has subscales the user should add the combined test name, which we use "composite".    
+
+```{r fittestscale, cache=FALSE}
+
+fit$testScale$test <- 'composite'
+
+```
+
+---
+
+Drawing PVs 
+========================================================
+
+```{r drawPV, cache=TRUE}
+
+#PVs <- drawPVs(fit, npv = 10)
+
+```
+
+---
+Drawing PVs 
+========================================================
+
+Finally, here is the drawn plausible values. We can see the first plausible values of each subscale and the composite score.
+```{r drawnPV, cache=TRUE}
+#PVs$data[1:5, 1:7]
+```
+
+---
+
+Self Reflection - Link your data
+========================================================
+
+1. Select a variable of your interest from https://api.census.gov/data/2019/acs/acs5/variables.html
+2. Download your ACS data
+3. Clean up
+4. Merge with the simulated NAEP-like dataset
+5. Build your own model (`composite ~ ACSvariable + simulatedDataVariable`)
+6. Estimate your regression model
+7. Summarize the results
+
+---
+
+Self Reflection - Help, How to download ACS data
+========================================================
+
+- Select a variable of your interest from https://api.census.gov/data/2019/acs/acs5/variables.html
+- Add this variable to your _url_ link
+
+```{r acsfigure, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/ACSDataDownload.png')
+```
+
+[Source and more information](https://www.census.gov/content/dam/Census/library/publications/2020/acs/acs_api_handbook_2020_ch02.pdf)
+
+- Check your link on your browser
+- If it works, download the data on `R`
+- If the link doesn't work, check your link and try again.
+
+
+---
+
+class: inverse, section-slide
+
+Wrap Up
+========================================================
+<hr class="sectionSlide">
+.logoSection[
+```{r, echo=FALSE, out.width='80%', out.height='80%'}
+knitr::include_graphics('presentationFigures/naepLogo.png')
+```
+]
+---
+
+Learning EdSurvey
+========================================================
+
+- Reading vignettes provided in training materials
+
+```{r browse, eval=FALSE}
+vignette("introduction", package="EdSurvey")
+```  
+
+- R help
+```{r rhelp1, eval=FALSE}
+help(package = "EdSurvey")
+```
+
+- [EdSurvey eBook](https://naep-research.airprojects.org/Portals/0/EdSurvey_A_Users_Guide/_book/index.html)
+
+- [EdSurvey Website](https://www.air.org/page/edsurvey-installation-and-use)
+
+- [EdSurvey Github](https://github.com/American-Institutes-for-Research/EdSurvey)
+
+- [NAEP Data Training workshop](http://naep-research.airprojects.org/Opportunities/Training)
+
+
+---
+
+Under development
+========================================================
+
+- Package is still under development
+  - Subsequent releases of the EdSurvey package will provide additional functionality for NAEP linking errors and direct estimation.
+
+- Your feedback is important to us!
+
+---
+
+Contact Information
+========================================================
+
+EdSurvey Package Help
+- EdSurvey.help@air.org
+
+EdSurvey Package Help on NCES.ed.gov
+- http://nces.ed.gov/nationsreportcard/contactus.aspx
+
+Ting Zhang
+- tzhang@air.org
+
+Paul Bailey
+- pbailey@air.org
+
+Emmanuel Sikali
+- Emmanuel.Sikali@ed.gov
