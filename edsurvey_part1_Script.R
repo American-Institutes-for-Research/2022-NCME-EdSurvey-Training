@@ -29,8 +29,17 @@ numbers
 mean(x = numbers)	
 mean(numbers)	
 ############################################### Slide 19	
-# to install the package	
-install.packages("EdSurvey")	
+#install Dire 2.0.1	
+# you may need to get rtools	
+install.packages("Dire")	
+	
+# then install devtools and EdSurvey from GitHub	
+install.packages("devtools")	
+devtools::install_github("American-Institutes-for-Research/edsurvey")	
+	
+#Install NCESDatalike from location of NCESDatalike_1.0.0.tar.gz file	
+install.packages("lsasim")	
+# the tar.gz location may differ depending on your R working directory	
 # to load the package	
 library(EdSurvey)	
 ############################################### Slide 20	
