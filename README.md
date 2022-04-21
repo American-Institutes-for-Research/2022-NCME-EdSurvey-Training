@@ -21,5 +21,6 @@ devtools::install_github("American-Institutes-for-Research/edsurvey")
 3) Install NCESDatalike
 
 ```
+install.packages("lsasim")
 install.packages("NCESDatalike_1.0.0.tar.gz", repos = NULL, type = "source")
 ```
