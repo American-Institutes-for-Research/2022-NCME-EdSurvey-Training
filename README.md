@@ -18,9 +18,10 @@ install.packages("devtools")
 devtools::install_github("American-Institutes-for-Research/edsurvey")
 ```
 
-3) Install NCESDatalike
+3) Install NCESDatalike from location of `NCESDatalike_1.0.0.tar.gz` file
 
 ```
 install.packages("lsasim")
+# the tar.gz location may differ depending on your R working directory
 install.packages("NCESDatalike_1.0.0.tar.gz", repos = NULL, type = "source")
 ```
