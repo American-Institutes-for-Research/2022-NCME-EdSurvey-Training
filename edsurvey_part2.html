@@ -1421,6 +1421,76 @@ summary(mmlA)
 
 ---
 
+Scoring
+=============================
+
+- shows how each item it changed from raw data to a score
+
+
+```r
+scard &lt;- getAttributes(sdf, &quot;scoreCard&quot;)
+subset(scard, key==&quot;m107101&quot;)
+```
+
+```
+##          key   answer score
+## 1117 m107101        A     0
+## 1118 m107101        B     0
+## 1119 m107101        C     0
+## 1120 m107101      D *     1
+## 1121 m107101        E     0
+## 1122 m107101  Omitted     8
+## 1124 m107101 Multiple     8
+```
+
+---
+
+IRT Parameters
+=============================
+
+- shows how each item it changed from raw data to a score
+
+
+```r
+dparam &lt;- getAttributes(sdf, &quot;dichotParamTab&quot;)
+head(dparam)
+```
+
+```
+##       ItemID     subtest slope difficulty guessing   D missingValue missingCode
+## 7657 m012231      number  0.51      -3.36     0.17 1.7            c           8
+## 7658 m012431      number  0.78      -0.08     0.10 1.7            c           8
+## 7659 m013131        data  0.64       0.91     0.00 1.7            c           8
+## 7660 m013331 measurement  1.09      -1.21     0.26 1.7            c           8
+## 7661 m013431      number  0.94      -0.24     0.11 1.7            c           8
+## 7662 m013531      number  0.92       1.03     0.11 1.7            c           8
+```
+
+
+---
+
+Test Data
+===============================
+
+
+```r
+getAttributes(sdf, &quot;testData&quot;)
+```
+
+```
+##         subtest location scale subtestWeight
+## 229     algebra   281.79 35.64          0.30
+## 228        data   281.91 40.37          0.15
+## 227    geometry   275.64 33.22          0.20
+## 226 measurement   275.86 46.57          0.15
+## 225      number   277.11 37.78          0.20
+```
+
+- Shows scaling information by construct
+
+
+---
+
 Draw PVs with EdSurvey - drawPVs
 ========================================================
 

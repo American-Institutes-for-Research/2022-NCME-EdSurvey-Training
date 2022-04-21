@@ -58,6 +58,11 @@ summary(lmexercise2)
 mmlA <- mml.sdf(composite ~ dsex + b013801, data=sdf)	
 ############################################### Slide 26	
 summary(mmlA)	
+scard <- getAttributes(sdf, "scoreCard")	
+subset(scard, key=="m107101")	
+dparam <- getAttributes(sdf, "dichotParamTab")	
+head(dparam)	
+getAttributes(sdf, "testData")	
 ############################################### Slide 27	
 sdf2 <- drawPVs(sdf, mmlA, npv=20L)	
 ############################################### Slide 28	
