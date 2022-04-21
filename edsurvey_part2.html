@@ -1352,7 +1352,7 @@ Direct Estimation with EdSurvey `mml.sdf`
 
 - Item parameters, scoring, scaling and weighting information were grabbed from existing NAEP documents, and multiple procedures were streamlined and calculated behind the scene automatically.
 
-- Plausible values (PVs) can be drawing from the latent distribution with `drawPVs.sdf`.
+- Plausible values (PVs) can be drawing from the latent distribution with `drawPVs`.
 
 ---
 
@@ -1413,9 +1413,9 @@ summary(mmlA)
 
 ---
 
-Draw PVs with EdSurvey `drawPVs.sdf`
+Draw PVs with EdSurvey `drawPVs`
 ========================================================
-- The `drawPVs.sdf` requires two data sources: 
+- The `drawPVs` requires two data sources: 
   - an `edsurvey.data.frame` (in this case, the primer data `sdf`), and 
   - a fit from a call to `mml.sdf` or a `summary` of `mml.sdf` call (i.e., `mmlA` from the example). 
 - The `npv` argument specifies the number of PVs for the scale. 
@@ -1503,7 +1503,7 @@ sdf2 &lt;- drawPVs(sdf, mmlA, npv=20L)
 
 ---
 
-Use new PVs with EdSurvey `drawPVs.sdf`
+Use new PVs with EdSurvey `drawPVs`
 ========================================================
 - The new plausible values variables end with `_dire`
 - these can be used to fit a regression with any combination of conditioning variables
@@ -1516,7 +1516,7 @@ lm2 &lt;- lm.sdf(composite_dire ~ b013801, data=sdf2)
 
 ---
 
-Use new PVs with EdSurvey `drawPVs.sdf`
+Use new PVs with EdSurvey `drawPVs`
 ========================================================
 
 
@@ -1552,7 +1552,7 @@ summary(lm2)
 
 ---
 
-Use new PVs with EdSurvey `drawPVs.sdf`
+Use new PVs with EdSurvey `drawPVs`
 ========================================================
 - Variables not included in the conditioning model (`mml.sdf` call) will have biased estimates
 - this includes interaction terms
