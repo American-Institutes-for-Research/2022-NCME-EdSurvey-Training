@@ -6,15 +6,22 @@ https://rstudio-education.github.io/hopr/starting.html
 
 ## Install EdSurvey and package dependencies
 
-1) Install EdSurvey 3.1.0
+1) install Dire 2.0.1
 
-`install.packages("EdSurvey")`
+`install.packages("Dire")`
 
 you may need to get `rtools`.
 
-2) Call the packages
+2) then install EdSurvey from GitHub
+```
+install.packages("devtools")
+devtools::install_github("American-Institutes-for-Research/edsurvey")
+```
+
+3) Install NCESDatalike from location of `NCESDatalike_1.0.0.tar.gz` file
 
 ```
-library(EdSurvey)
-library(Dire)
+install.packages("lsasim")
+# the tar.gz location may differ depending on your R working directory
+install.packages("NCESDatalike_1.0.0.tar.gz", repos = NULL, type = "source")
 ```
